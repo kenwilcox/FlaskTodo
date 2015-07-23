@@ -1,10 +1,10 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///todo.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
 db = SQLAlchemy(app)
 
 
@@ -21,9 +21,16 @@ class Todo(db.Model):
 @app.route('/')
 def index():
     todos = Todo.query.all()
-    return render_template("index.html", todos=todos)
+    return render_template('index.html', todos=todos)
+
+
+@app.route('/add', methods=['POST'])
+def add():
+    db.session.add(Todo(title=request.form['title']))
+    db.session.commit()
+    return redirect('/')
 
 app.debug = True
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run()
